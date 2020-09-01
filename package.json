@@ -136,19 +136,15 @@
       "target": [
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": ["arm64"]
         },
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": ["arm64"]
         },
         {
           "target": "rpm",
-          "arch": ["x64"]
-        },
-        {
-          "target": "snap",
-          "arch": ["x64"]
+          "arch": ["arm64"]
         }
       ]
     },
@@ -165,9 +161,6 @@
     },
     "rpm": {
       "afterInstall": "./build/linux/after-install.tpl"
-    },
-    "snap": {
-      "confinement": "classic"
     },
     "protocols": {
       "name": "ssh URL",

@@ -1,30 +1,33 @@
 sudo: required
-dist: trusty
+dist: focal
+
+arch:
+  - arm64
 
 language: node_js
 
 matrix:
   include:
     - os: linux
-      node_js: 10.2.0
-      env: CC=clang CXX=clang++ npm_config_clang=1
+      node_js: 10
+      env: CC=clang CXX=clang++ npm_config_clang=1 USE_SYSTEM_FPM=true
       compiler: clang
 
 addons:
   apt:
     packages:
-      - gcc-multilib
-      - g++-multilib
-      - libgnome-keyring-dev
+      - gcc
+      - g++
       - icnsutils
       - graphicsmagick
+      - libopenjp2-tools 
       - xz-utils
       - rpm
-      - bsdtar
-      - snapd
+      - ruby
+      - ruby-dev
+      - build-essential
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo snap install snapcraft --classic; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start; sleep 3; fi
 
 cache: yarn
@@ -34,8 +37,21 @@ install:
 
 after_success:
   - (git branch --contains $TRAVIS_COMMIT | grep canary > /dev/null || [[ "$TRAVIS_BRANCH" == "canary" ]] ) && (cd build; cp canary.icns icon.icns; cp canary.ico icon.ico)
+  - gem install --no-document fpm
   - yarn run dist
 
 branches:
   except:
     - "/^v\\d+\\.\\d+\\.\\d+$/"
+
+deploy:
+  provider: releases
+  file:
+    - "dist/hyper-3.0.2.arm64.rpm"
+    - "dist/hyper_3.0.2_arm64.deb"
+    - 'dist/Hyper 3.0.2 arm64.AppImage'
+
+  edge: true # opt in to dpl v2
+  api_key: $GITHUB_RELEASE_KEY
+  on:
+    tags: true
